@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class Megan : MonoBehaviour
 {
+    public bool isGameOver = false; // Track if the game is over
+
     public float gravity = -9.81f;
     private Vector3 velocity;
     public float moveSpeed = 2f;
@@ -25,6 +27,8 @@ public class Megan : MonoBehaviour
 
     void Update()
     {
+        // If the game is over, stop processing movement
+        if (isGameOver) return;
         // Handle Player Movement
         float moveX = Input.GetAxis("Horizontal");  // A/D or Left/Right Arrow for left-right movement
         float moveZ = Input.GetAxis("Vertical");    // W/S or Up/Down Arrow for forward/backward movement
