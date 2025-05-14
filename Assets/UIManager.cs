@@ -31,15 +31,14 @@ public class UIManager : MonoBehaviour
             characterController = player.GetComponent<CharacterController>();
         }
 
-        // Only show splash screen in main menu scene
         if (SceneManager.GetActiveScene().name == "MainMenu")
         {
             // Hide all panels first
             HideAllPanels();
             // Show main menu
-            mainMenuPanel.SetActive(true);
-            // Show splash screen
-            ShowSplashScreen();
+            if (mainMenuPanel != null)
+                mainMenuPanel.SetActive(true);
+            // Do NOT call ShowSplashScreen() in MainMenu scene unless you have a splash screen there
         }
         else
         {
