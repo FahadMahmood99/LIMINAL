@@ -31,8 +31,23 @@ public class UIManager : MonoBehaviour
             characterController = player.GetComponent<CharacterController>();
         }
 
-        // Show splash screen first
-        ShowSplashScreen();
+        // Only show splash screen in main menu scene
+        if (SceneManager.GetActiveScene().name == "MainMenu")
+        {
+            // Hide all panels first
+            HideAllPanels();
+            // Show main menu
+            mainMenuPanel.SetActive(true);
+            // Show splash screen
+            ShowSplashScreen();
+        }
+        else
+        {
+            // In game scene, start with player movement enabled
+            SetPlayerMovement(true);
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
     }
 
     void Update()
@@ -75,8 +90,10 @@ public class UIManager : MonoBehaviour
 
     public void TogglePauseMenu()
     {
+        Debug.Log("TogglePauseMenu called. Current state: " + isPaused);
         isPaused = !isPaused;
         pauseMenuPanel.SetActive(isPaused);
+        Debug.Log("PauseMenuPanel active: " + pauseMenuPanel.activeSelf);
         
         // Toggle player movement
         SetPlayerMovement(!isPaused);
@@ -140,10 +157,10 @@ public class UIManager : MonoBehaviour
 
     private void HideAllPanels()
     {
-        mainMenuPanel.SetActive(false);
-        pauseMenuPanel.SetActive(false);
-        splashScreenPanel.SetActive(false);
-        gameOverPanel.SetActive(false);
+        if (mainMenuPanel != null) mainMenuPanel.SetActive(false);
+        if (pauseMenuPanel != null) pauseMenuPanel.SetActive(false);
+        if (splashScreenPanel != null) splashScreenPanel.SetActive(false);
+        if (gameOverPanel != null) gameOverPanel.SetActive(false);
     }
 
     private void SetPlayerMovement(bool enabled)

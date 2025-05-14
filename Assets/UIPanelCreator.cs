@@ -49,7 +49,21 @@ public class UIPanelCreator : MonoBehaviour
     {
         GameObject panel = CreatePanel("GameOverPanel");
         AddTitle(panel, "Game Over", new Vector2(0, 100));
-        AddText(panel, "GameOverText", "You've Escaped!", new Vector2(0, 0));
+        
+        // Create the GameOverText component with a specific name that UIManager can find
+        GameObject textObj = new GameObject("GameOverText");
+        textObj.transform.SetParent(panel.transform, false);
+        
+        RectTransform rectTransform = textObj.AddComponent<RectTransform>();
+        rectTransform.anchoredPosition = new Vector2(0, 0);
+        rectTransform.sizeDelta = new Vector2(400, 50);
+        
+        TMP_Text tmpText = textObj.AddComponent<TextMeshProUGUI>();
+        tmpText.text = "You've Escaped!";
+        tmpText.fontSize = buttonFontSize;
+        tmpText.color = textColor;
+        tmpText.alignment = TextAlignmentOptions.Center;
+        
         AddButton(panel, "RestartButton", "Restart", new Vector2(0, -100));
         AddButton(panel, "MainMenuButton", "Main Menu", new Vector2(0, -100 - buttonSize.y - buttonSpacing));
         SaveAsPrefab(panel, "GameOverPanel");
