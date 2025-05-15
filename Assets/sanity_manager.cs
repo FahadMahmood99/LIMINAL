@@ -1,14 +1,15 @@
-﻿
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
-using System.Collections;  
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using System.Collections;
 
 public class SanityEffects : MonoBehaviour
 {
     public float sanity = 100f;
     public Volume postVolume;
-    public Animator animator; 
+    public Animator animator;
 
     public float sanityDecreaseDelay = 10f;
     public float distortionDuration = 3f;
@@ -21,53 +22,66 @@ public class SanityEffects : MonoBehaviour
     private float distortionTimer = 0f;
     private bool mildDistortionActive = false;
     private bool intenseDistortionActive = false;
-    public  MonoBehaviour playerController;
+    public MonoBehaviour playerController;
     private bool isFrozen = false;
-    public float freezeTime = 2f;
-  
-
     private bool animationTriggered = false;
+
+    public float freezeTime = 2f;
+
+    public GameObject gameOverCanvas;         // Assign in Inspector
+    public Button restartButton;              // Assign in Inspector
+    public Button mainMenuButton;             // Assign in Inspector
+
+    private bool isGameOver = false;
 
     void Start()
     {
         postVolume.profile.TryGet(out chroma);
         postVolume.profile.TryGet(out lens);
         postVolume.profile.TryGet(out color);
+
+        if (gameOverCanvas != null)
+        {
+            gameOverCanvas.SetActive(false);
+        }
+
+        // Assign button listeners
+        if (restartButton != null)
+            restartButton.onClick.AddListener(RestartGame);
+
+        if (mainMenuButton != null)
+            mainMenuButton.onClick.AddListener(GoToMainMenu);
     }
 
     void Update()
     {
-        // Wait before sanity starts dropping
+        if (isGameOver) return;
+
         sanityTimer += Time.deltaTime;
         if (sanityTimer >= sanityDecreaseDelay)
         {
-            // Slow down sanity decrease to 10 minutes (0.1 per second)
-            sanity -= Time.deltaTime * (0.1f);  // (100 / 600 seconds = 0.1 per second)
+            sanity -= Time.deltaTime * 0.1f;
             sanity = Mathf.Clamp(sanity, 0, 100);
         }
 
-        // Trigger freeze effect when sanity goes below 90
         if (sanity <= 90f && !isFrozen)
         {
-            StartCoroutine(FreezePlayer(freezeTime)); // Freeze for 2 seconds
+            StartCoroutine(FreezePlayer(freezeTime));
             isFrozen = true;
         }
 
-        // Trigger animation at 90 sanity
         if (sanity <= 90f && !animationTriggered)
         {
-            TriggerSanityAnimation();  // Call function to trigger animation
-            animationTriggered = true; // Prevent repeated triggers
+            TriggerSanityAnimation();
+            animationTriggered = true;
         }
 
-        // Trigger mild distortion at 50% sanity
         if (sanity <= 50f && !mildDistortionActive && sanity > 25f)
         {
             mildDistortionActive = true;
             distortionTimer = distortionDuration;
         }
 
-        // Mild distortion effect (short burst)
         if (mildDistortionActive && sanity > 25f)
         {
             distortionTimer -= Time.deltaTime;
@@ -85,22 +99,49 @@ public class SanityEffects : MonoBehaviour
             }
         }
 
-        // Intense distortion if sanity drops below 25%
         if (sanity <= 25f)
         {
             intenseDistortionActive = true;
         }
 
-        // Intense ongoing effects
         if (intenseDistortionActive)
         {
-            float pulse = Mathf.Sin(Time.time * 6f); // fast flicker
-
+            float pulse = Mathf.Sin(Time.time * 6f);
             chroma.intensity.value = 1f;
             lens.intensity.value = -0.7f + pulse * 0.1f;
             color.saturation.value = -90f + pulse * 10f;
             color.hueShift.value = Mathf.PingPong(Time.time * 200f, 360f);
         }
+
+        if (sanity <= 0 && !isGameOver)
+        {
+            TriggerGameOver();
+        }
+    }
+
+    void TriggerGameOver()
+    {
+        isGameOver = true;
+        Time.timeScale = 0f;
+
+        if (gameOverCanvas != null)
+        {
+            gameOverCanvas.SetActive(true);
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+    }
+
+    public void RestartGame()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void GoToMainMenu()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("Main Menu"); // Replace with your actual scene name
     }
 
     IEnumerator FreezePlayer(float freezeDuration)
@@ -108,7 +149,6 @@ public class SanityEffects : MonoBehaviour
         if (playerController != null)
             playerController.enabled = false;
 
-        // Wait for the specified freeze time
         yield return new WaitForSeconds(freezeDuration);
 
         if (playerController != null)
@@ -127,7 +167,6 @@ public class SanityEffects : MonoBehaviour
     {
         if (animator != null)
         {
-            // Trigger an animation, e.g., shaking or screen effect
             animator.SetTrigger("SanityLowTrigger");
             animator.SetBool("isWalking", false);
             StartCoroutine(ResetSanityAnimation(freezeTime));
@@ -138,10 +177,9 @@ public class SanityEffects : MonoBehaviour
         }
     }
 
-    //  Coroutine to reset animation state
     IEnumerator ResetSanityAnimation(float delay)
     {
         yield return new WaitForSeconds(delay);
-        animator.SetBool("IsSane", true); 
+        animator.SetBool("IsSane", true);
     }
 }
