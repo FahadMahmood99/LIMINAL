@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
+using System.Collections; // Added for Coroutines
 
 public class UIManager : MonoBehaviour
 {
@@ -13,6 +14,9 @@ public class UIManager : MonoBehaviour
     [Header("Game Over Panel")]
     public TMP_Text gameOverText;
 
+    [Header("Splash Screen")]
+    public float splashScreenDuration = 3.0f; // How long the splash screen stays visible
+
     [Header("References")]
     public GameObject player;
     private Megan playerMovement;
@@ -20,6 +24,7 @@ public class UIManager : MonoBehaviour
     private CharacterController characterController;
 
     private bool isPaused = false;
+    private static bool splashScreenShown = false;
 
     void Start()
     {
@@ -33,12 +38,16 @@ public class UIManager : MonoBehaviour
 
         if (SceneManager.GetActiveScene().name == "MainMenu")
         {
-            // Hide all panels first
             HideAllPanels();
-            // Show main menu
-            if (mainMenuPanel != null)
-                mainMenuPanel.SetActive(true);
-            // Do NOT call ShowSplashScreen() in MainMenu scene unless you have a splash screen there
+            if (!splashScreenShown)
+            {
+                ShowSplashScreen();
+                splashScreenShown = true;
+            }
+            else
+            {
+                DisplayMainMenu();
+            }
         }
         else
         {
@@ -72,19 +81,37 @@ public class UIManager : MonoBehaviour
         // Unlock cursor
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+
+        // Start coroutine to transition to main menu
+        StartCoroutine(TransitionToMainMenuCoroutine());
+    }
+
+    private IEnumerator TransitionToMainMenuCoroutine()
+    {
+        yield return new WaitForSeconds(splashScreenDuration);
+        DisplayMainMenu();
+    }
+
+    public void DisplayMainMenu()
+    {
+        // Hide all panels
+        HideAllPanels();
+
+        // Show main menu panel
+        if (mainMenuPanel != null)
+            mainMenuPanel.SetActive(true);
+
+        // Ensure player movement is off for the main menu
+        SetPlayerMovement(false);
+
+        // Ensure cursor is visible and unlocked for the main menu
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 
     public void StartGame()
     {
-        // Hide all panels
-        HideAllPanels();
-        
-        // Enable player movement
-        SetPlayerMovement(true);
-        
-        // Lock cursor
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        SceneManager.LoadScene("SampleScene");
     }
 
     public void TogglePauseMenu()
