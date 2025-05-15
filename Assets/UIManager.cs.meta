@@ -1,0 +1,22 @@
+fileFormatVersion: 2
+guid: 321f2a28db70ac4409603e82c6c0515e
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - mainMenuPanel: {fileID: 213669681885825255, guid: db94d62f6f0ffd549a09a9691ccc4787,
+      type: 3}
+  - pauseMenuPanel: {fileID: 3679956023470040794, guid: e251b0e2dbdfe9541b7e2a40c060c899,
+      type: 3}
+  - splashScreenPanel: {fileID: 2954560596345874519, guid: 9cd0ac321ed17fa4991650c597d88f77,
+      type: 3}
+  - gameOverPanel: {fileID: 7535629416824920024, guid: f149c67abe5b1d7458220ab770e5d8d3,
+      type: 3}
+  - gameOverText: {instanceID: 0}
+  - player: {fileID: 7386490529809481566, guid: b38ad6178e58d4542a7e3d96abc370dc,
+      type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
